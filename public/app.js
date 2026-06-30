@@ -4,30 +4,25 @@ const $ = (sel) => document.querySelector(sel);
 
 const searchForm = $("#search-form");
 const urlInput = $("#url-input");
-const searchBtn = $("#search-btn");
+const downBtn = $("#down-btn");
 const errorEl = $("#error");
 
-const resultEl = $("#result");
+const modal = $("#modal");
 const thumbEl = $("#thumb");
-const titleEl = $("#video-title");
+const titleEl = $("#modal-title");
 const authorEl = $("#video-author");
 const durationEl = $("#video-duration");
-
-const tabs = document.querySelectorAll(".tab");
-const videoPanel = $("#video-panel");
-const audioPanel = $("#audio-panel");
-const qualitySelect = $("#quality-select");
-const downloadBtn = $("#download-btn");
-const downloadHint = $("#download-hint");
+const formatSelect = $("#format-select");
+const goBtn = $("#go-btn");
+const goHint = $("#go-hint");
 
 let currentUrl = "";
-let mode = "video"; // "video" | "audio"
 
 // ---------------------------------------------------------------------------
 // 헬퍼
 // ---------------------------------------------------------------------------
 function setLoading(btn, loading) {
-  const label = btn.querySelector(".btn-label");
+  const label = btn.querySelector(".btn-label, .down-label");
   const spinner = btn.querySelector(".spinner");
   btn.disabled = loading;
   if (label) label.style.opacity = loading ? "0.5" : "1";
@@ -48,8 +43,25 @@ function formatDuration(sec) {
   return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`;
 }
 
+function openModal() {
+  modal.hidden = false;
+  document.body.style.overflow = "hidden";
+}
+
+function closeModal() {
+  modal.hidden = true;
+  document.body.style.overflow = "";
+}
+
+modal.addEventListener("click", (e) => {
+  if (e.target.hasAttribute("data-close")) closeModal();
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !modal.hidden) closeModal();
+});
+
 // ---------------------------------------------------------------------------
-// 영상 정보 불러오기
+// Down 버튼 → 링크 분석 → 선택 창 열기
 // ---------------------------------------------------------------------------
 searchForm.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -57,8 +69,7 @@ searchForm.addEventListener("submit", async (e) => {
   const url = urlInput.value.trim();
   if (!url) return;
 
-  setLoading(searchBtn, true);
-  resultEl.hidden = true;
+  setLoading(downBtn, true);
 
   try {
     const res = await fetch("/api/info", {
@@ -70,15 +81,16 @@ searchForm.addEventListener("submit", async (e) => {
     if (!res.ok) throw new Error(data.error || "영상 정보를 불러오지 못했습니다.");
 
     currentUrl = url;
-    renderResult(data);
+    renderOptions(data);
+    openModal();
   } catch (err) {
     showError(err.message);
   } finally {
-    setLoading(searchBtn, false);
+    setLoading(downBtn, false);
   }
 });
 
-function renderResult(data) {
+function renderOptions(data) {
   thumbEl.src = data.thumbnail || "";
   titleEl.textContent = data.title || "";
   authorEl.textContent = data.author || "";
@@ -86,65 +98,58 @@ function renderResult(data) {
     ? `길이 ${formatDuration(data.duration)}`
     : "";
 
-  // 화질 옵션 채우기
-  qualitySelect.innerHTML = "";
+  // 화질(MP4) 목록 + MP3 옵션을 하나의 선택지로 구성
+  formatSelect.innerHTML = "";
+
   if (data.qualities && data.qualities.length) {
     for (const q of data.qualities) {
       const opt = document.createElement("option");
-      opt.value = q.height;
-      opt.textContent = `${q.label} (MP4)`;
-      qualitySelect.appendChild(opt);
+      opt.value = `video:${q.height}`;
+      opt.textContent = `🎬 ${q.label} · MP4`;
+      formatSelect.appendChild(opt);
     }
   } else {
     const opt = document.createElement("option");
-    opt.value = "";
-    opt.textContent = "최고 화질 (MP4)";
-    qualitySelect.appendChild(opt);
+    opt.value = "video:";
+    opt.textContent = "🎬 최고 화질 · MP4";
+    formatSelect.appendChild(opt);
   }
 
-  resultEl.hidden = false;
-  resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  // MP3 옵션
+  const mp3 = document.createElement("option");
+  mp3.value = "audio:";
+  mp3.textContent = "🎵 MP3 음원 (320kbps)";
+  formatSelect.appendChild(mp3);
 }
 
 // ---------------------------------------------------------------------------
-// 탭 전환 (영상 / 음원)
+// Go 버튼 → 선택한 형식으로 다운로드 (기기 다운로드 폴더에 저장)
 // ---------------------------------------------------------------------------
-tabs.forEach((tab) => {
-  tab.addEventListener("click", () => {
-    tabs.forEach((t) => t.classList.remove("active"));
-    tab.classList.add("active");
-    mode = tab.dataset.mode;
-    videoPanel.hidden = mode !== "video";
-    audioPanel.hidden = mode !== "audio";
-  });
-});
-
-// ---------------------------------------------------------------------------
-// 다운로드
-// ---------------------------------------------------------------------------
-downloadBtn.addEventListener("click", () => {
+goBtn.addEventListener("click", () => {
   if (!currentUrl) return;
 
-  const params = new URLSearchParams({ url: currentUrl, type: mode });
-  if (mode === "video" && qualitySelect.value) {
-    params.set("height", qualitySelect.value);
-  }
+  const [type, height] = formatSelect.value.split(":");
+  const params = new URLSearchParams({ url: currentUrl, type });
+  if (type === "video" && height) params.set("height", height);
 
-  // 서버가 attachment 헤더로 응답하므로 브라우저가 파일로 저장한다.
-  // (모바일 사파리/크롬 모두 동일하게 동작)
-  setLoading(downloadBtn, true);
-  downloadHint.hidden = false;
+  setLoading(goBtn, true);
+  goHint.hidden = false;
 
-  const iframe = document.createElement("iframe");
-  iframe.style.display = "none";
-  iframe.src = `/api/download?${params.toString()}`;
-  document.body.appendChild(iframe);
+  // 서버가 Content-Disposition: attachment 로 응답하므로
+  // 브라우저(PC/Mac/모바일)가 자동으로 '다운로드' 폴더에 저장한다.
+  const downloadUrl = `/api/download?${params.toString()}`;
+  const a = document.createElement("a");
+  a.href = downloadUrl;
+  a.setAttribute("download", "");
+  a.style.display = "none";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
 
-  // 변환에는 시간이 걸리므로 일정 시간 후 버튼 상태 복구
+  // 변환에 시간이 걸리므로 일정 시간 후 상태 복구 후 창 닫기
   setTimeout(() => {
-    setLoading(downloadBtn, false);
-    downloadHint.hidden = true;
-    // iframe 은 다운로드가 시작된 뒤 정리
-    setTimeout(() => iframe.remove(), 60000);
+    setLoading(goBtn, false);
+    goHint.hidden = true;
+    closeModal();
   }, 4000);
 });
