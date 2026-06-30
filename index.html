@@ -53,39 +53,66 @@
     <!-- 화질 / MP3 선택 창 (모달) -->
     <div id="modal" class="modal" hidden>
       <div class="modal-backdrop" data-close></div>
-      <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div
+        class="modal-box"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
+      >
         <button class="modal-close" data-close aria-label="닫기">×</button>
 
-        <div class="meta">
-          <img id="thumb" class="thumb" alt="" />
-          <div class="meta-text">
-            <h2 id="modal-title"></h2>
-            <p id="video-author" class="author"></p>
-            <p id="video-duration" class="duration"></p>
-          </div>
+        <h2 id="modal-title" class="modal-title">다운로드 옵션</h2>
+
+        <div class="tabs" role="tablist">
+          <button class="tab active" data-mode="video" type="button" role="tab">
+            🎬 영상 (MP4)
+          </button>
+          <button class="tab" data-mode="audio" type="button" role="tab">
+            🎵 음원 (MP3)
+          </button>
         </div>
 
-        <label class="select-label" for="format-select">화질 / 형식 선택</label>
-        <select id="format-select"></select>
+        <div id="video-panel" class="panel">
+          <label class="select-label" for="quality-select">화질 선택</label>
+          <select id="quality-select">
+            <option value="max">최고 화질</option>
+            <option value="1080" selected>1080p</option>
+            <option value="720">720p</option>
+            <option value="480">480p</option>
+            <option value="360">360p</option>
+          </select>
+        </div>
 
-        <button id="go-btn" class="go">
+        <div id="audio-panel" class="panel" hidden>
+          <p class="audio-note">
+            최고 음질 오디오를 추출해 <strong>MP3</strong> 로 변환합니다.
+          </p>
+        </div>
+
+        <button id="go-btn" class="go" type="button">
           <span class="btn-label">Go</span>
           <span class="spinner" hidden></span>
         </button>
 
-        <div id="progress-wrap" class="progress-wrap" hidden>
-          <div class="progress-track">
-            <div id="progress-bar" class="progress-bar"></div>
-          </div>
-          <div class="progress-info">
-            <span id="progress-phase">준비 중</span>
-            <span id="progress-pct">0%</span>
-          </div>
-        </div>
+        <p id="status" class="status" hidden></p>
 
-        <p id="go-hint" class="hint" hidden>
-          완료되면 기기의 다운로드 폴더에 저장됩니다.
-        </p>
+        <details class="advanced">
+          <summary>고급 설정 (API 인스턴스)</summary>
+          <p class="advanced-note">
+            다운로드는 공개 <a href="https://cobalt.tools" target="_blank"
+              rel="noopener">cobalt</a> 인스턴스가 처리합니다. 동작하지 않으면
+            <a href="https://instances.cobalt.best" target="_blank"
+              rel="noopener">instances.cobalt.best</a> 에서 살아있는 주소로
+            바꿔보세요.
+          </p>
+          <input
+            id="instance-input"
+            type="url"
+            inputmode="url"
+            autocomplete="off"
+            placeholder="https://cobalt-api.example.com"
+          />
+        </details>
       </div>
     </div>
 

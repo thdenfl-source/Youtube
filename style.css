@@ -181,6 +181,52 @@ button:disabled {
   margin-top: 16px;
 }
 
+.modal-title {
+  font-size: 1.15rem;
+  margin: 0 0 16px;
+}
+
+/* ---------- Status ---------- */
+.status {
+  margin: 14px 0 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+  text-align: center;
+}
+.status-error {
+  color: #ff8080;
+}
+
+/* ---------- Advanced settings ---------- */
+.advanced {
+  margin-top: 18px;
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+}
+.advanced summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.advanced-note {
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  margin: 10px 0;
+}
+.advanced-note a {
+  color: #7aa7ff;
+}
+.advanced input {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 0.95rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--card-2);
+  color: var(--text);
+}
+
 /* ---------- Progress ---------- */
 .progress-wrap {
   margin-top: 16px;
