@@ -16,7 +16,17 @@ const YTDLP = process.env.YTDLP_PATH || "yt-dlp";
 const FFMPEG = process.env.FFMPEG_PATH || "ffmpeg";
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "public")));
+
+// 프런트엔드 정적 파일(루트의 index.html / style.css / app.js)을 제공한다.
+// GitHub Pages 가 루트의 index.html 을 그대로 띄울 수 있도록 루트에 둔다.
+const STATIC_FILES = new Set(["/", "/index.html", "/style.css", "/app.js"]);
+app.use((req, res, next) => {
+  if (req.method === "GET" && STATIC_FILES.has(req.path)) {
+    const file = req.path === "/" ? "index.html" : req.path.slice(1);
+    return res.sendFile(path.join(__dirname, file));
+  }
+  next();
+});
 
 // ---------------------------------------------------------------------------
 // 유틸: 안전한 YouTube URL 검증
