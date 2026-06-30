@@ -15,6 +15,12 @@ const durationEl = $("#video-duration");
 const formatSelect = $("#format-select");
 const goBtn = $("#go-btn");
 const goHint = $("#go-hint");
+const progressWrap = $("#progress-wrap");
+const progressBar = $("#progress-bar");
+const progressPhase = $("#progress-phase");
+const progressPct = $("#progress-pct");
+
+let activeSource = null;
 
 let currentUrl = "";
 
@@ -51,6 +57,10 @@ function openModal() {
 function closeModal() {
   modal.hidden = true;
   document.body.style.overflow = "";
+  if (activeSource) {
+    activeSource.close();
+    activeSource = null;
+  }
 }
 
 modal.addEventListener("click", (e) => {
@@ -123,33 +133,88 @@ function renderOptions(data) {
 }
 
 // ---------------------------------------------------------------------------
-// Go 버튼 → 선택한 형식으로 다운로드 (기기 다운로드 폴더에 저장)
+// Go 버튼 → 작업 시작 → 진행률 표시 → 완료 시 다운로드 폴더에 저장
 // ---------------------------------------------------------------------------
-goBtn.addEventListener("click", () => {
-  if (!currentUrl) return;
+function setProgress(pct, phase) {
+  const p = Math.max(0, Math.min(100, Math.round(pct)));
+  progressBar.style.width = `${p}%`;
+  progressPct.textContent = `${p}%`;
+  if (phase) progressPhase.textContent = phase;
+}
 
-  const [type, height] = formatSelect.value.split(":");
-  const params = new URLSearchParams({ url: currentUrl, type });
-  if (type === "video" && height) params.set("height", height);
+function resetProgressUI() {
+  if (activeSource) {
+    activeSource.close();
+    activeSource = null;
+  }
+  setLoading(goBtn, false);
+  progressWrap.hidden = true;
+  goHint.hidden = true;
+  setProgress(0, "준비 중");
+}
 
-  setLoading(goBtn, true);
-  goHint.hidden = false;
-
+function saveFile(jobId) {
   // 서버가 Content-Disposition: attachment 로 응답하므로
   // 브라우저(PC/Mac/모바일)가 자동으로 '다운로드' 폴더에 저장한다.
-  const downloadUrl = `/api/download?${params.toString()}`;
   const a = document.createElement("a");
-  a.href = downloadUrl;
+  a.href = `/api/file/${jobId}`;
   a.setAttribute("download", "");
   a.style.display = "none";
   document.body.appendChild(a);
   a.click();
   a.remove();
+}
 
-  // 변환에 시간이 걸리므로 일정 시간 후 상태 복구 후 창 닫기
-  setTimeout(() => {
-    setLoading(goBtn, false);
-    goHint.hidden = true;
-    closeModal();
-  }, 4000);
+goBtn.addEventListener("click", async () => {
+  if (!currentUrl) return;
+
+  const [type, height] = formatSelect.value.split(":");
+
+  setLoading(goBtn, true);
+  progressWrap.hidden = false;
+  goHint.hidden = false;
+  setProgress(0, "작업 시작 중");
+
+  try {
+    const res = await fetch("/api/prepare", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url: currentUrl, type, height }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "작업을 시작하지 못했습니다.");
+
+    const jobId = data.jobId;
+
+    // SSE 로 진행률 수신
+    activeSource = new EventSource(`/api/progress/${jobId}`);
+    activeSource.onmessage = (e) => {
+      const evt = JSON.parse(e.data);
+      if (evt.error) {
+        showError(evt.error);
+        resetProgressUI();
+        return;
+      }
+      if (typeof evt.progress === "number") setProgress(evt.progress, evt.phase);
+      if (evt.done) {
+        setProgress(100, "완료");
+        saveFile(jobId);
+        // 잠시 완료 상태를 보여준 뒤 창 정리
+        setTimeout(() => {
+          resetProgressUI();
+          closeModal();
+        }, 1200);
+      }
+    };
+    activeSource.onerror = () => {
+      // 연결 종료(완료 후) 또는 네트워크 오류
+      if (activeSource) {
+        activeSource.close();
+        activeSource = null;
+      }
+    };
+  } catch (err) {
+    showError(err.message);
+    resetProgressUI();
+  }
 });
