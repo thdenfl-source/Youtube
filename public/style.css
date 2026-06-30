@@ -1,0 +1,263 @@
+:root {
+  --bg: #0f0f0f;
+  --card: #1c1c1f;
+  --card-2: #26262b;
+  --text: #f1f1f1;
+  --muted: #aaa;
+  --accent: #ff0033;
+  --accent-hover: #d4002b;
+  --border: #333;
+  --radius: 14px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  background: radial-gradient(1200px 600px at 50% -10%, #1a1a1f, var(--bg));
+  color: var(--text);
+  min-height: 100vh;
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: max(20px, env(safe-area-inset-top)) 16px
+    max(20px, env(safe-area-inset-bottom));
+}
+
+/* ---------- Hero ---------- */
+.hero {
+  text-align: center;
+  padding: 28px 0 16px;
+}
+.logo {
+  display: inline-flex;
+}
+.hero h1 {
+  font-size: 1.6rem;
+  margin: 10px 0 4px;
+}
+.subtitle {
+  color: var(--muted);
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+/* ---------- Card ---------- */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin-bottom: 16px;
+}
+
+/* ---------- Search ---------- */
+.search {
+  display: flex;
+  gap: 10px;
+}
+.search input {
+  flex: 1;
+  min-width: 0;
+  padding: 14px 16px;
+  font-size: 1rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--card-2);
+  color: var(--text);
+  outline: none;
+}
+.search input:focus {
+  border-color: var(--accent);
+}
+.search button {
+  flex-shrink: 0;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 14px 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.15s ease, transform 0.05s ease;
+}
+button:hover {
+  background: var(--accent-hover);
+}
+button:active {
+  transform: scale(0.98);
+}
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ---------- Error ---------- */
+.error {
+  color: #ff8080;
+  margin: 12px 0 0;
+  font-size: 0.9rem;
+}
+
+/* ---------- Result meta ---------- */
+.meta {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.thumb {
+  width: 140px;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 10px;
+  background: var(--card-2);
+  flex-shrink: 0;
+}
+.meta-text h2 {
+  font-size: 1.05rem;
+  margin: 0 0 6px;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.author,
+.duration {
+  color: var(--muted);
+  margin: 2px 0;
+  font-size: 0.85rem;
+}
+
+/* ---------- Tabs ---------- */
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.tab {
+  flex: 1;
+  background: var(--card-2);
+  color: var(--text);
+  font-weight: 500;
+  padding: 12px;
+}
+.tab.active {
+  background: var(--accent);
+  color: #fff;
+}
+.tab:hover {
+  background: var(--card-2);
+}
+.tab.active:hover {
+  background: var(--accent-hover);
+}
+
+/* ---------- Panels ---------- */
+.panel {
+  margin-bottom: 16px;
+}
+.panel label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+select {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 1rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--card-2);
+  color: var(--text);
+  appearance: none;
+}
+.audio-note {
+  background: var(--card-2);
+  border-radius: 10px;
+  padding: 14px 16px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 0;
+}
+.audio-note strong {
+  color: var(--text);
+}
+
+/* ---------- Download ---------- */
+.download {
+  width: 100%;
+  padding: 16px;
+  font-size: 1.05rem;
+}
+.hint {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin: 12px 0 0;
+}
+
+/* ---------- Footer ---------- */
+.footer {
+  text-align: center;
+  color: #777;
+  font-size: 0.8rem;
+  padding: 8px 0 4px;
+}
+
+/* ---------- Spinner ---------- */
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 480px) {
+  .search {
+    flex-direction: column;
+  }
+  .search button {
+    width: 100%;
+  }
+  .meta {
+    flex-direction: column;
+  }
+  .thumb {
+    width: 100%;
+  }
+  .hero h1 {
+    font-size: 1.4rem;
+  }
+}

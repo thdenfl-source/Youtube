@@ -1,0 +1,26 @@
+{
+  "name": "youtube-downloader-webapp",
+  "version": "1.0.0",
+  "description": "화질 선택 및 MP3 변환을 지원하는 반응형 유튜브 다운로더 웹앱",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "youtube",
+    "downloader",
+    "mp3",
+    "yt-dlp",
+    "express"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#0f0f0f" />
+    <title>YouTube 다운로더</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="hero">
+        <div class="logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="40" height="40">
+            <path
+              fill="#ff0033"
+              d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8Z"
+            />
+            <path fill="#fff" d="M9.6 15.6V8.4l6.3 3.6-6.3 3.6Z" />
+          </svg>
+        </div>
+        <h1>YouTube 다운로더</h1>
+        <p class="subtitle">화질 선택 · MP3 변환 · 모든 기기 지원</p>
+      </header>
+
+      <section class="card">
+        <form id="search-form" class="search">
+          <input
+            id="url-input"
+            type="url"
+            inputmode="url"
+            autocomplete="off"
+            placeholder="YouTube 영상 링크를 붙여넣으세요"
+            required
+          />
+          <button type="submit" id="search-btn">
+            <span class="btn-label">불러오기</span>
+            <span class="spinner" hidden></span>
+          </button>
+        </form>
+        <p id="error" class="error" role="alert" hidden></p>
+      </section>
+
+      <section id="result" class="card result" hidden>
+        <div class="meta">
+          <img id="thumb" class="thumb" alt="" />
+          <div class="meta-text">
+            <h2 id="video-title"></h2>
+            <p id="video-author" class="author"></p>
+            <p id="video-duration" class="duration"></p>
+          </div>
+        </div>
+
+        <div class="options">
+          <div class="tabs" role="tablist">
+            <button class="tab active" data-mode="video" role="tab">
+              🎬 영상 (MP4)
+            </button>
+            <button class="tab" data-mode="audio" role="tab">
+              🎵 음원 (MP3)
+            </button>
+          </div>
+
+          <div id="video-panel" class="panel">
+            <label for="quality-select">화질 선택</label>
+            <select id="quality-select"></select>
+          </div>
+
+          <div id="audio-panel" class="panel" hidden>
+            <p class="audio-note">
+              최고 음질의 오디오를 추출하여 <strong>MP3 (320kbps)</strong> 로
+              변환합니다.
+            </p>
+          </div>
+
+          <button id="download-btn" class="download">
+            <span class="btn-label">다운로드</span>
+            <span class="spinner" hidden></span>
+          </button>
+          <p id="download-hint" class="hint" hidden>
+            변환 중입니다… 파일 크기에 따라 시간이 걸릴 수 있어요.
+          </p>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <p>본인이 권리를 가지고 있거나 저작권이 허용된 콘텐츠만 받으세요.</p>
+      </footer>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
