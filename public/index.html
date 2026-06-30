@@ -87,8 +87,19 @@
           <span class="btn-label">Go</span>
           <span class="spinner" hidden></span>
         </button>
+
+        <div id="progress-wrap" class="progress-wrap" hidden>
+          <div class="progress-track">
+            <div id="progress-bar" class="progress-bar"></div>
+          </div>
+          <div class="progress-info">
+            <span id="progress-phase">준비 중</span>
+            <span id="progress-pct">0%</span>
+          </div>
+        </div>
+
         <p id="go-hint" class="hint" hidden>
-          준비 중입니다… 잠시 후 기기의 다운로드 폴더에 저장됩니다.
+          완료되면 기기의 다운로드 폴더에 저장됩니다.
         </p>
       </div>
     </div>

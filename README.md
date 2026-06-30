@@ -8,8 +8,9 @@
 - 🔗 YouTube 링크 붙여넣기 → 영상 정보 미리보기 (썸네일/제목/길이)
 - 🎞️ **화질 선택** (1080p, 720p, 480p … 영상별 제공 화질 자동 감지)
 - 🎵 **MP3 변환** (최고 음질 오디오 추출, 320kbps)
+- 📊 **실시간 진행률 표시** (서버의 yt-dlp 진행률을 SSE로 막대 그래프 표시)
+- 💾 완료 시 **각 기기의 다운로드 폴더에 자동 저장**
 - 📱 모바일 / 데스크톱 모두 대응하는 반응형 다크 UI
-- ⚡ 서버에서 스트리밍 방식으로 바로 전달 (디스크에 파일을 쌓지 않음)
 
 ## 🧱 기술 구성
 
@@ -73,7 +74,10 @@ docker run -p 3000:3000 youtube-downloader
 | 메서드 | 경로 | 설명 |
 | --- | --- | --- |
 | `POST` | `/api/info` | `{ url }` → 영상 정보 + 사용 가능한 화질 목록 |
-| `GET` | `/api/download` | `?url=&type=video&height=720` 또는 `?url=&type=audio` |
+| `POST` | `/api/prepare` | `{ url, type, height }` → 다운로드 작업 시작, `jobId` 반환 |
+| `GET` | `/api/progress/:id` | SSE 로 실시간 진행률(`progress`, `phase`, `done`) 전송 |
+| `GET` | `/api/file/:id` | 완료된 파일을 다운로드 폴더로 저장 (전송 후 임시파일 정리) |
+| `GET` | `/api/download` | (단순 스트리밍) `?url=&type=video&height=720` 또는 `?url=&type=audio` |
 | `GET` | `/api/health` | 상태 확인 |
 
 ## ⚠️ 주의
