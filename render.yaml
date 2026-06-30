@@ -1,0 +1,11 @@
+# Render 원클릭 배포 설정 (Blueprint)
+# https://render.com → New + → Blueprint → 이 저장소 선택 → Apply
+# Docker 로 빌드되며 yt-dlp + ffmpeg 가 자동 포함됩니다.
+services:
+  - type: web
+    name: youtube-downloader
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    autoDeploy: true

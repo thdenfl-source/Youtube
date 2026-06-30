@@ -94,23 +94,31 @@
           <span class="spinner" hidden></span>
         </button>
 
+        <div id="progress-wrap" class="progress-wrap" hidden>
+          <div class="progress-track">
+            <div id="progress-bar" class="progress-bar"></div>
+          </div>
+          <div class="progress-info">
+            <span id="progress-phase">준비 중</span>
+            <span id="progress-pct">0%</span>
+          </div>
+        </div>
+
         <p id="status" class="status" hidden></p>
 
         <details class="advanced">
-          <summary>고급 설정 (API 인스턴스)</summary>
+          <summary>고급 설정 (백엔드 서버 주소)</summary>
           <p class="advanced-note">
-            다운로드는 공개 <a href="https://cobalt.tools" target="_blank"
-              rel="noopener">cobalt</a> 인스턴스가 처리합니다. 동작하지 않으면
-            <a href="https://instances.cobalt.best" target="_blank"
-              rel="noopener">instances.cobalt.best</a> 에서 살아있는 주소로
-            바꿔보세요.
+            이 페이지가 호출할 백엔드 서버 주소입니다. 같은 서버에서 열었다면
+            비워두세요. GitHub Pages 등 다른 곳에서 열었다면 배포한 서버 주소를
+            입력하세요 (예: <code>https://내앱.onrender.com</code>).
           </p>
           <input
-            id="instance-input"
+            id="backend-input"
             type="url"
             inputmode="url"
             autocomplete="off"
-            placeholder="https://cobalt-api.example.com"
+            placeholder="https://your-app.onrender.com"
           />
         </details>
       </div>
