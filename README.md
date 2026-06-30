@@ -54,7 +54,37 @@
 > 무료 플랜은 한동안 요청이 없으면 서버가 잠들어, 첫 접속이 30초~1분 정도
 > 느릴 수 있습니다(이후 정상 속도).
 
-## 🚀 직접 실행 방법
+## 🍎 Mac 에서 실행 (카드 불필요 · 가장 간단)
+
+터미널(응용프로그램 → 유틸리티 → 터미널)을 열고 아래를 순서대로 붙여넣으세요.
+
+```bash
+# 1) Homebrew 설치 (이미 있으면 건너뛰기) — https://brew.sh
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# 2) 필요한 도구 설치
+brew install node yt-dlp ffmpeg git
+
+# 3) 코드 내려받기
+git clone https://github.com/thdenfl-source/Youtube.git
+cd Youtube
+
+# 4) 실행
+npm install
+npm start
+```
+
+이후 브라우저에서 **http://localhost:3000** 접속 → 바로 사용.
+
+> 💡 **다음부터는 더 쉽게:** `Youtube` 폴더 안의 **`start-mac.command` 파일을
+> 더블클릭**하면 서버가 켜지고 브라우저가 자동으로 열립니다.
+> (처음 더블클릭 시 "확인되지 않은 개발자" 경고가 뜨면, 파일을 마우스
+> 오른쪽 클릭 → "열기" 를 한 번만 선택하세요.)
+
+> 📱 **같은 와이파이의 폰에서도 쓰기:** 맥의 IP 주소(시스템 설정 → Wi-Fi →
+> 세부사항)로 폰 브라우저에서 `http://<맥IP>:3000` 접속.
+
+## 🚀 직접 실행 방법 (기타 OS)
 
 ### 1) 사전 요구 사항
 
