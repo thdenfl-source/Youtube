@@ -182,12 +182,13 @@ app.get("/api/download", async (req, res) => {
       `attachment; filename*=UTF-8''${encodeURIComponent(safeTitle)}.mp3`
     );
   } else {
-    // 선택한 화질 이하 최고 영상 + 최고 오디오 → mp4 병합
+    // 호환성 우선: H.264(avc1) 영상 + AAC(m4a) 오디오 → 어떤 플레이어에서도 재생.
+    // (유튜브 고화질의 VP9/AV1 코덱은 맥 QuickTime 등에서 소리만 나올 수 있어 회피)
     const h = parseInt(height, 10);
-    const heightFilter = Number.isFinite(h) ? `[height<=${h}]` : "";
+    const hf = Number.isFinite(h) ? `[height<=${h}]` : "";
     args.push(
       "-f",
-      `bestvideo${heightFilter}+bestaudio/best${heightFilter}`,
+      `bestvideo${hf}[vcodec^=avc1]+bestaudio[ext=m4a]/bestvideo${hf}[ext=mp4]+bestaudio[ext=m4a]/best${hf}[ext=mp4]/best${hf}`,
       "--merge-output-format",
       "mp4"
     );
@@ -307,11 +308,12 @@ app.post("/api/prepare", async (req, res) => {
     ext = "mp3";
     mime = "audio/mpeg";
   } else {
+    // 호환성 우선: H.264(avc1) 영상 + AAC(m4a) 오디오 → 어떤 플레이어에서도 재생.
     const h = parseInt(height, 10);
-    const heightFilter = Number.isFinite(h) ? `[height<=${h}]` : "";
+    const hf = Number.isFinite(h) ? `[height<=${h}]` : "";
     args.push(
       "-f",
-      `bestvideo${heightFilter}+bestaudio/best${heightFilter}/best`,
+      `bestvideo${hf}[vcodec^=avc1]+bestaudio[ext=m4a]/bestvideo${hf}[ext=mp4]+bestaudio[ext=m4a]/best${hf}[ext=mp4]/best${hf}`,
       "--merge-output-format",
       "mp4"
     );
