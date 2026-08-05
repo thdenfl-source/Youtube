@@ -96,7 +96,57 @@ npm start
 > 📱 **같은 와이파이의 폰에서도 쓰기:** 맥의 IP 주소(시스템 설정 → Wi-Fi →
 > 세부사항)로 폰 브라우저에서 `http://<맥IP>:3000` 접속.
 
-## 🚀 직접 실행 방법 (기타 OS)
+## 🐧 Linux 에서 실행 (Ubuntu / HamoniKR / Mint 등)
+
+터미널을 열고 아래를 순서대로 붙여넣으세요.
+
+```bash
+# 1) 필요한 도구 설치
+sudo apt update
+sudo apt install -y nodejs npm ffmpeg git curl
+
+# 2) yt-dlp 최신 공식 버전 설치 (apt 버전은 오래돼 유튜브 차단에 약함)
+sudo curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp
+sudo chmod a+rx /usr/local/bin/yt-dlp
+
+# 3) 코드 내려받기
+git clone https://github.com/thdenfl-source/Youtube.git
+cd Youtube
+
+# 4) 실행
+npm install
+npm start
+```
+
+이후 브라우저에서 **http://localhost:3000** 접속 → 바로 사용.
+
+> 💡 **다음부터는 더 쉽게:** `Youtube` 폴더에서 `./start-linux.sh` 실행
+> (또는 파일 관리자에서 실행 가능하게 설정 후 더블클릭).
+
+### ⚡ 완전 자동화 (터미널 없이, 로그인 시 자동 시작)
+
+`Youtube` 폴더에서 아래 한 줄만 실행하면 됩니다.
+
+```bash
+./install-linux-autostart.sh
+```
+
+- `systemd` 사용자 서비스로 등록되어 **백그라운드에서 항상 실행**
+- **로그인 시 자동 시작** (로그아웃 후에도 유지되도록 linger 활성화 시도)
+- 이후로는 브라우저에서 **http://localhost:3000** 만 열면 됩니다.
+
+```bash
+# 상태 확인
+systemctl --user status youtube-downloader.service
+# 끄기
+./uninstall-linux-autostart.sh
+```
+
+> 📱 **같은 와이파이의 폰에서도 쓰기:** 리눅스 PC의 IP(`hostname -I` 로 확인)로
+> 폰 브라우저에서 `http://<PC IP>:3000` 접속.
+
+## 🚀 직접 실행 방법 (기타 OS · Windows 등)
+
 
 ### 1) 사전 요구 사항
 
