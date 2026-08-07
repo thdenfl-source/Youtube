@@ -120,8 +120,8 @@ searchForm.addEventListener("submit", (e) => {
   showError("");
   const url = urlInput.value.trim();
   if (!url) return;
-  if (!/^https?:\/\/(www\.|m\.|music\.)?(youtube\.com|youtu\.be)\//.test(url)) {
-    showError("올바른 YouTube 링크를 입력해 주세요.");
+  if (!/^https?:\/\/.+/i.test(url)) {
+    showError("http:// 또는 https:// 로 시작하는 링크를 입력해 주세요.");
     return;
   }
   currentUrl = url;

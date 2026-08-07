@@ -39,19 +39,15 @@ app.use((req, res, next) => {
 });
 
 // ---------------------------------------------------------------------------
-// 유틸: 안전한 YouTube URL 검증
+// 유틸: 지원하는 링크(http/https) 검증
+//   yt-dlp 가 YouTube·Instagram·Facebook·TikTok·X 등 1000+ 사이트를 지원하므로
+//   호스트를 한정하지 않고 http/https URL 이면 통과시킨다.
 // ---------------------------------------------------------------------------
-function isValidYouTubeUrl(url) {
+function isValidMediaUrl(url) {
   if (typeof url !== "string") return false;
   try {
     const u = new URL(url);
-    const host = u.hostname.replace(/^www\./, "");
-    return (
-      host === "youtube.com" ||
-      host === "m.youtube.com" ||
-      host === "music.youtube.com" ||
-      host === "youtu.be"
-    );
+    return u.protocol === "http:" || u.protocol === "https:";
   } catch {
     return false;
   }
@@ -81,8 +77,8 @@ function runYtDlpJson(args) {
 // ---------------------------------------------------------------------------
 app.post("/api/info", async (req, res) => {
   const { url } = req.body || {};
-  if (!isValidYouTubeUrl(url)) {
-    return res.status(400).json({ error: "올바른 YouTube URL이 아닙니다." });
+  if (!isValidMediaUrl(url)) {
+    return res.status(400).json({ error: "올바른 링크(http/https)가 아닙니다." });
   }
 
   try {
@@ -134,8 +130,8 @@ app.post("/api/info", async (req, res) => {
 app.get("/api/download", async (req, res) => {
   const { url, type = "video", height } = req.query;
 
-  if (!isValidYouTubeUrl(url)) {
-    return res.status(400).send("올바른 YouTube URL이 아닙니다.");
+  if (!isValidMediaUrl(url)) {
+    return res.status(400).send("올바른 링크(http/https)가 아닙니다.");
   }
   if (type !== "video" && type !== "audio") {
     return res.status(400).send("type은 video 또는 audio여야 합니다.");
@@ -258,8 +254,8 @@ function cleanupJob(jobId) {
 app.post("/api/prepare", async (req, res) => {
   const { url, type = "video", height } = req.body || {};
 
-  if (!isValidYouTubeUrl(url)) {
-    return res.status(400).json({ error: "올바른 YouTube URL이 아닙니다." });
+  if (!isValidMediaUrl(url)) {
+    return res.status(400).json({ error: "올바른 링크(http/https)가 아닙니다." });
   }
   if (type !== "video" && type !== "audio") {
     return res.status(400).json({ error: "type은 video 또는 audio여야 합니다." });
