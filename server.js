@@ -17,8 +17,8 @@ const FFMPEG = process.env.FFMPEG_PATH || "ffmpeg";
 
 app.use(express.json());
 
-// API 요청에 CORS 허용 → GitHub Pages(정적 호스팅) 등 다른 출처에서
-// 이 백엔드의 /api/* 를 호출할 수 있게 한다.
+// API 에 CORS 허용 → 같은 와이파이의 다른 기기(폰·태블릿 등)에서
+// 이 서버의 http://<PC-IP>:3000 으로 접속해 쓸 수 있게 한다.
 app.use("/api", (req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
@@ -28,7 +28,6 @@ app.use("/api", (req, res, next) => {
 });
 
 // 프런트엔드 정적 파일(루트의 index.html / style.css / app.js)을 제공한다.
-// GitHub Pages 가 루트의 index.html 을 그대로 띄울 수 있도록 루트에 둔다.
 const STATIC_FILES = new Set(["/", "/index.html", "/style.css", "/app.js"]);
 app.use((req, res, next) => {
   if (req.method === "GET" && STATIC_FILES.has(req.path)) {
