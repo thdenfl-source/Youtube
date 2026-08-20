@@ -1,9 +1,7 @@
 "use strict";
 
 // ---------------------------------------------------------------------------
-//  우리 백엔드(server.js + yt-dlp)를 호출하는 버전.
-//  - 같은 서버에서 열면 같은 출처(/api/*) 로 동작.
-//  - GitHub Pages 등 다른 곳에서 열면 "백엔드 서버 주소"를 입력해 호출.
+//  로컬 백엔드(server.js + yt-dlp)를 호출하는 프런트엔드.
 //  흐름: POST /api/prepare → SSE /api/progress/:id → /api/file/:id 저장
 // ---------------------------------------------------------------------------
 
@@ -20,14 +18,11 @@ const audioPanel = $("#audio-panel");
 const qualitySelect = $("#quality-select");
 const goBtn = $("#go-btn");
 const statusEl = $("#status");
-const backendInput = $("#backend-input");
 
 const progressWrap = $("#progress-wrap");
 const progressBar = $("#progress-bar");
 const progressPhase = $("#progress-phase");
 const progressPct = $("#progress-pct");
-
-const LS_KEY = "backend_base";
 
 let currentUrl = "";
 let mode = "video"; // "video" | "audio"
@@ -55,11 +50,6 @@ function setStatus(msg, kind) {
   statusEl.classList.toggle("status-error", kind === "error");
 }
 
-// 백엔드 기본 주소 (비어있으면 같은 출처)
-function apiBase() {
-  return (localStorage.getItem(LS_KEY) || "").trim().replace(/\/+$/, "");
-}
-
 function setProgress(pct, phase) {
   const p = Math.max(0, Math.min(100, Math.round(pct)));
   progressBar.style.width = `${p}%`;
@@ -68,7 +58,6 @@ function setProgress(pct, phase) {
 }
 
 function openModal() {
-  backendInput.value = localStorage.getItem(LS_KEY) || "";
   setStatus("");
   progressWrap.hidden = true;
   setProgress(0, "준비 중");
@@ -90,13 +79,6 @@ modal.addEventListener("click", (e) => {
 });
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && !modal.hidden) closeModal();
-});
-
-// 백엔드 주소 저장
-backendInput.addEventListener("change", () => {
-  const v = backendInput.value.trim();
-  if (v) localStorage.setItem(LS_KEY, v);
-  else localStorage.removeItem(LS_KEY);
 });
 
 // ---------------------------------------------------------------------------
@@ -129,18 +111,22 @@ searchForm.addEventListener("submit", (e) => {
 });
 
 // ---------------------------------------------------------------------------
-// Go 버튼 → 작업 시작 → 진행률 → 완료 시 다운로드 폴더에 저장
+// 완료된 파일을 다운로드 폴더에 저장한다.
+//   숨긴 iframe 으로 attachment 응답을 불러오면, 사용자 제스처와 무관하게
+//   브라우저(Safari 포함)가 안정적으로 다운로드한다. (a.click() 은 Safari 에서
+//   제스처가 끊기면 무시될 수 있어 iframe 을 사용)
 // ---------------------------------------------------------------------------
 function saveFile(jobId) {
-  const a = document.createElement("a");
-  a.href = `${apiBase()}/api/file/${jobId}`;
-  a.setAttribute("download", "");
-  a.style.display = "none";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
+  const iframe = document.createElement("iframe");
+  iframe.style.display = "none";
+  iframe.src = `/api/file/${jobId}`;
+  document.body.appendChild(iframe);
+  setTimeout(() => iframe.remove(), 120000);
 }
 
+// ---------------------------------------------------------------------------
+// Go 버튼 → 작업 시작 → 진행률 → 완료 시 다운로드 폴더에 저장
+// ---------------------------------------------------------------------------
 goBtn.addEventListener("click", async () => {
   if (!currentUrl) return;
 
@@ -154,7 +140,7 @@ goBtn.addEventListener("click", async () => {
   setProgress(0, "작업 시작 중");
 
   try {
-    const res = await fetch(`${apiBase()}/api/prepare`, {
+    const res = await fetch("/api/prepare", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
@@ -164,7 +150,7 @@ goBtn.addEventListener("click", async () => {
 
     const jobId = data.jobId;
 
-    activeSource = new EventSource(`${apiBase()}/api/progress/${jobId}`);
+    activeSource = new EventSource(`/api/progress/${jobId}`);
     activeSource.onmessage = (e) => {
       const evt = JSON.parse(e.data);
       if (evt.error) {
@@ -180,7 +166,7 @@ goBtn.addEventListener("click", async () => {
       if (typeof evt.progress === "number") setProgress(evt.progress, evt.phase);
       if (evt.done) {
         setProgress(100, "완료");
-        setStatus("다운로드를 시작합니다… 기기의 다운로드 폴더를 확인하세요.");
+        setStatus("다운로드를 시작합니다… 다운로드 폴더를 확인하세요.");
         saveFile(jobId);
         if (activeSource) {
           activeSource.close();
@@ -189,20 +175,16 @@ goBtn.addEventListener("click", async () => {
         setTimeout(() => {
           setLoading(goBtn, false);
           closeModal();
-        }, 2000);
+        }, 2500);
       }
     };
     activeSource.onerror = () => {
-      // 완료 후 연결 종료이거나 네트워크 오류
       if (activeSource) {
         activeSource.close();
         activeSource = null;
       }
       if (goBtn.disabled) {
-        setStatus(
-          "서버 연결이 끊겼습니다. 백엔드 서버 주소를 확인해 주세요.",
-          "error"
-        );
+        setStatus("서버 연결이 끊겼습니다. 잠시 후 다시 시도해 주세요.", "error");
         setLoading(goBtn, false);
         progressWrap.hidden = true;
       }
@@ -210,7 +192,7 @@ goBtn.addEventListener("click", async () => {
   } catch (err) {
     const msg =
       err instanceof TypeError
-        ? "백엔드 서버에 연결하지 못했습니다. 고급 설정에서 서버 주소를 확인해 주세요."
+        ? "서버에 연결하지 못했습니다. 서버가 실행 중인지 확인해 주세요."
         : err.message;
     setStatus(msg, "error");
     setLoading(goBtn, false);
